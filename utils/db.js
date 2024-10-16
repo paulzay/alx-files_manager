@@ -34,8 +34,18 @@ class DBClient {
     const estimate = await this.db.collection('files').estimatedDocumentCount();
     return estimate;
   }
+
+  async find(collection, query) {
+    const result = await this.db.collection(collection).find(query).toArray();
+    return result;
+  }
+
+  async insert(collection, document) {
+    const result = await this.db.collection(collection).insertOne(document);
+    return result.ops[0];
+  }
 }
 
 const dbClient = new DBClient();
 
-export default dbClient;
+module.exports = dbClient;
