@@ -5,13 +5,13 @@ class UserController {
   static async postNew(request, response) {
     const { email, password } = request.body;
 
-    if (!email) return response.status(400).send('Missing email');
+    if (!email) return response.status(400).send({ error: 'Missing email' });
 
-    if (!password) return response.status(400).send('Missing password');
+    if (!password) return response.status(400).send({ error: 'Missing password' });
 
     const userExists = await dbClient.find('users', { email });
     if (userExists.length > 0) {
-      return response.status(400).send('Already exist');
+      return response.status(400).send({ error: 'Already exist' });
     }
 
     const user = await dbClient.insert('users', {
