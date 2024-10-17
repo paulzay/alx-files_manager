@@ -6,24 +6,17 @@ class AuthController {
   static async getConnect(request, response) {
     const { authorization } = request.headers;
     if (!authorization) return response.send('Unauthorized').status(401);
-    const token = authorization.split(' ')[1];
-    if (!token) return response.send('Unauthorized').status(401);
-
-    const credentials = Buffer.from(token, 'base64').toString('ascii');
+    const base64Credentials = authorization.split(' ')[1];
+    if (!base64Credentials) return response.send('Unauthorized').status(401);
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+    if (!credentials) return response.send('Unauthorized').status(401);
     const [email, password] = credentials.split(':');
+    if (!email || !password) return response.send('Unauthorized').status(401);
     const user = await dbClient.find('users', { email, password });
-    // const userId = await redisClient.get(`auth_${token}`);
-    // if (!userId) return response.send('Unauthorized').status(401);
-    // const user = await dbClient.find('users', { id: userId });
-
-    // const { email, password } = request.body;
-    // const user = await dbClient.find('users', { email, password });
-    console.log(user);
-    if (user.length === 0) return response.send('User not found').status(401);
-    const usertoken = uuidv4();
-    const key = `auth_${usertoken}`;
-    redisClient.set(key, user[0].id, 24 * 60 * 60);
-    return response.send({ token: 'hello' }).status(200);
+    if (user.length === 0) return response.send('Unauthorized').status(401);
+    const token = uuidv4();
+    await redisClient.set(`auth_${token}`, user[0].id, 86400);
+    return response.send({ token }).status(200);
   }
 
   static async getDisconnect(request, response) {
