@@ -13,7 +13,7 @@ class DBClient {
     MongoClient.connect(`mongodb://${this.host}:${this.port}`, { useUnifiedTopology: true }, (error, client) => {
       if (error) {
         console.log('eroo', error.message);
-        this.client = false;
+        this.db = false;
       } else {
         console.log(`DBClient connected to ${this.host}:${this.port}`);
         this.db = client.db(this.database);
